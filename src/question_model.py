@@ -1,16 +1,24 @@
-from dataclasses import dataclass
-from typing import List
+from dataclasses import dataclass, field
+from typing import List, Optional
 
 from pydantic import conlist
 
 
 @dataclass
-class QuestionModel:
-    """ TODO """
+class AnswerModel:
+    """Answer to a question model class. """
     text: str
-    answers: List[str]
-    correct_answer: int
-    comment: str
+    is_correct: bool
+
+
+@dataclass
+class QuestionModel:
+    """Single question model class. """
+    text: str
+    answers: List[AnswerModel]
+    image_path: Optional[str] = field(default=None)
+    comment: Optional[str] = field(default=None)
+    user_comments: Optional[str] = field(default=None)
 
 
 @dataclass
@@ -44,12 +52,12 @@ class LearningQuestion(QuestionModel):
 
 NUMBER_OF_LEVELS = 5
 
-
+@dataclass
 class LearningModel:
     """ There are 5 levels. At the beginning every question starts in first level.
     After defined number of tries with positive answers it is promoted to next level.
     The higher the question is, the lower probability should be that it is going to be asked. """
-    NUMBER_OF_LEVELS = 5
+    # NUMBER_OF_LEVELS = 5
 
     learning_levels: conlist(List[LearningQuestion], min_items=NUMBER_OF_LEVELS, max_items=NUMBER_OF_LEVELS)
 
@@ -80,4 +88,5 @@ class LearningModel:
 
     @classmethod
     def create_from_quiz_model(cls, quiz_model: QuizModel): # TODO co tu dopisać zamiast LearningModel?
+        """ TODO """
         return cls(learning_levels=[quiz_model.questions, [], [], [], []])

@@ -1,5 +1,5 @@
 """ Run file """
-from quiz_parser import parse_quiz_text, QuizModel
+from src.database.quiz_parser import parse_quiz_text, QuizModel
 from src.question_model import LearningModel
 
 INPUT_FILE_ATH = './data/test_quiz.md'
@@ -16,12 +16,15 @@ def get_quiz_model(file_path: str) -> QuizModel:
 
 
 def run_learning(model: LearningModel) -> None:
-    for question in model.learning_levels[:10]: # TODO delete [:10]
+    for question in model.learning_levels[0][:10]: # TODO delete [:10]
         print(question.text)
+        correct_answer_number = 0
         for answer_number, answer in enumerate(question.answers):
-            print(answer_number, answer)
+            print(answer_number, answer.text)
+            if answer.is_correct:
+                correct_answer_number = answer_number
         user_answer = input()
-        if int(user_answer.strip()) == question.correct_answer:
+        if int(user_answer.strip()) == correct_answer_number:
             print('Congratulations!!!')
 
 
