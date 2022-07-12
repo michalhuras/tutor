@@ -65,7 +65,7 @@ class LearningModel:
         """Get number of questions on every level """
         return [len(list_of_questions) for list_of_questions in self.learning_levels]
 
-    def upgrade_question(self, current_level, index) -> None:
+    def move_to_next_level(self, current_level, index) -> None:
         """Erase question from current level and add it to the next level.
         If the question is already on the highest level nothing will happen.
         """
@@ -75,7 +75,7 @@ class LearningModel:
         question = self.learning_levels[current_level].pop(index)
         self.learning_levels[current_level + 1].append(question)
 
-    def move_to_next_level(self, current_level, index) -> None:
+    def move_to_lower_level(self, current_level, index) -> None:
         """Erase question from current level and add it to the previous level.
         If the question is already on the lowest level nothing will happen.
         """
@@ -85,6 +85,10 @@ class LearningModel:
 
         question = self.learning_levels[current_level].pop(index)
         self.learning_levels[current_level - 1].append(question)
+
+    def is_anything_to_learn(self) -> bool:
+        """Check if there are any question in level other than last one. """
+        return any(self.learning_levels[:-1])
 
     @classmethod
     def create_from_quiz_model(cls, quiz_model: QuizModel): # TODO co tu dopisać zamiast LearningModel?
