@@ -29,7 +29,6 @@ def create_database(db_path: str):
                        f'VALUES({VERSION.major}, {VERSION.minor}, {VERSION.patch});')
         cursor.execute('CREATE TABLE IF NOT EXISTS quiz ('
                        'id INTEGER PRIMARY KEY, name TEXT NOT NULL, description TEXT, date DATETIME);')
-        connection.commit()
 
         cursor.execute('CREATE TABLE IF NOT EXISTS question ('
                        'id INTEGER PRIMARY KEY, '
@@ -39,7 +38,12 @@ def create_database(db_path: str):
                        'notes TEXT, '
                        'user_notes TEXT, '
                        'FOREIGN KEY(quiz_id) REFERENCES quiz(id));')
-        connection.commit()
+
+        cursor.execute('CREATE TABLE IF NOT EXISTS question_progress ('
+                       'question_id INTEGER NOT NULL, '
+                       'level INTEGER NOT NULL, '
+                       'correct_answers INTEGER NOT NULL, '
+                       'FOREIGN KEY(question_id) REFERENCES question(id));')
 
         cursor.execute('CREATE TABLE IF NOT EXISTS answer ('
                        'id INTEGER PRIMARY KEY, '
@@ -48,6 +52,7 @@ def create_database(db_path: str):
                        'text TEXT NOT NULL, '
                        'is_correct BOOLEAN, '
                        'FOREIGN KEY(question_id) REFERENCES question(id));')
+
         connection.commit()
         cursor.close()
     except sqlite3.Error as err:

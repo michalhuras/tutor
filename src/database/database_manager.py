@@ -1,7 +1,6 @@
 """Database manager. It is used to add new questions to existing database. """
 import sqlite3
 from datetime import datetime
-from pprint import pprint
 from sqlite3 import Error
 from typing import List, Optional
 
@@ -81,6 +80,3 @@ def get_quizzes(database_path: str) -> Optional[List[QuizModel]]:
             return quizzes
     except Error as err:
         print(f'Error occurred while processing request:\n {err}')
-
-
-pprint(get_quizzes('data/quiz.db'))
