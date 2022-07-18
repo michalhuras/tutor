@@ -5,6 +5,9 @@ from sqlite3 import Error
 from typing import List, Optional
 
 from src.question_model import QuizModel, QuestionModel, AnswerModel
+from sqlalchemy import Column, Integer, String, ForeignKey, Table
+from sqlalchemy.orm import relationship, backref
+from sqlalchemy.ext.declarative import declarative_base
 
 
 def add_quiz(database_path: str, model: QuizModel) -> None:
@@ -30,11 +33,11 @@ def add_question(question_model: QuestionModel, cursor: sqlite3.Cursor, quiz_id:
     """Add new question in quiz to existing database. """
     parameters = (quiz_id,
                   question_model.text,
-                  f'\'{question_model.image_path}\'' if question_model.image_path else None,
-                  f'\'{question_model.comment}\'' if question_model.comment else None,
-                  f'\'{question_model.user_comments}\'' if question_model.user_comments else None)
+                  question_model.image_path if question_model.image_path else None,
+                  question_model.comment if question_model.comment else None,
+                  question_model.user_comments if question_model.user_comments else None)
     cursor.execute(f'INSERT INTO question (quiz_id, text, image_path, notes, user_notes) '
-                       f'VALUES(?, ?, ?, ?, ?);', parameters)
+                   f'VALUES(?, ?, ?, ?, ?);', parameters)
 
     cursor.execute('select last_insert_rowid();')
     question_id = cursor.fetchone()[0]
