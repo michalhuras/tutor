@@ -1,31 +1,39 @@
-from dataclasses import dataclass, field
-from typing import List, Optional
+from typing import List, Optional, Any
 
-from pydantic import conlist
+from pydantic import conlist, BaseModel, Field
 
 
-@dataclass
-class AnswerModel:
+class AnswerModel(BaseModel):
     """Answer to a question model class. """
     text: str
     is_correct: bool
 
+    class Config:
+        orm_mode = True
 
-@dataclass
-class QuestionModel:
+
+class QuestionModel(BaseModel):
     """Single question model class. """
     text: str
     answers: List[AnswerModel]
-    image_path: Optional[str] = field(default=None)
-    comment: Optional[str] = field(default=None)
-    user_comments: Optional[str] = field(default=None)
+    progress: List[Any] = Field(default_factory=list)
+    image_path: Optional[str] = Field(default=None)
+    comment: Optional[str] = Field(default=None)
+    user_comment: Optional[str] = Field(default=None)
+
+    class Config:
+        orm_mode = True
 
 
-@dataclass
-class QuizModel:
+class QuizModel(BaseModel):
     """Class for keeping track of an item in inventory."""
     name: str
     questions: List[QuestionModel]
+    description: Optional[str]
+    date: Optional[str]
+
+    class Config:
+        orm_mode = True
 
 
 class LearningQuestion(QuestionModel):
@@ -49,11 +57,14 @@ class LearningQuestion(QuestionModel):
         """Submit wrong answer. """
         self.wrong_answers += 1
 
+    class Config:
+        orm_mode = True
+
 
 NUMBER_OF_LEVELS = 5
 
-@dataclass
-class LearningModel:
+
+class LearningModel(BaseModel):
     """ There are 5 levels. At the beginning every question starts in first level.
     After defined number of tries with positive answers it is promoted to next level.
     The higher the question is, the lower probability should be that it is going to be asked. """
@@ -94,3 +105,6 @@ class LearningModel:
     def create_from_quiz_model(cls, quiz_model: QuizModel): # TODO co tu dopisać zamiast LearningModel?
         """ TODO """
         return cls(learning_levels=[quiz_model.questions, [], [], [], []])
+
+    class Config:
+        orm_mode = True

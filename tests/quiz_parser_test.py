@@ -28,10 +28,10 @@ class QuizParserTests(TestCase):
                 QuestionModel(
                     text='Q1. What is 2 + 2?',
                     answers=[
-                        AnswerModel('1', False),
-                        AnswerModel('2', False),
-                        AnswerModel('3', False),
-                        AnswerModel('4', True)],
+                        AnswerModel(text='1', is_correct=False),
+                        AnswerModel(text='2', is_correct=False),
+                        AnswerModel(text='3', is_correct=False),
+                        AnswerModel(text='4', is_correct=True)],
                     comment='[reference](https://www.google.com/)',
                     image_path='images/question1.png')])
 
@@ -70,19 +70,19 @@ Yes, sky is blue.
                 QuestionModel(
                     text='Q1. What is 2 + 2?',
                     answers=[
-                        AnswerModel('1', False),
-                        AnswerModel('2', False),
-                        AnswerModel('3', False),
-                        AnswerModel('4', True)],
+                        AnswerModel(text='1', is_correct=False),
+                        AnswerModel(text='2', is_correct=False),
+                        AnswerModel(text='3', is_correct=False),
+                        AnswerModel(text='4', is_correct=True)],
                     comment='[reference](https://www.google.com/)',
                     image_path='images/question1.png'),
                 QuestionModel(
                     text='Q2. What color is a sky?',
                     answers=[
-                        AnswerModel('green', False),
-                        AnswerModel('blue', True),
-                        AnswerModel('pink', False),
-                        AnswerModel('dark', False)],
+                        AnswerModel(text='green', is_correct=False),
+                        AnswerModel(text='blue', is_correct=True),
+                        AnswerModel(text='pink', is_correct=False),
+                        AnswerModel(text='dark', is_correct=False)],
                     comment='**example**\n```\nYes, sky is blue.\n```',)
             ])
 

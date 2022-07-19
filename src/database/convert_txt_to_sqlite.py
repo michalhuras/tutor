@@ -24,4 +24,3 @@ def run(arguments: Namespace):
 if __name__ == '__main__':
     parser = create_arg_parser()
     run(parser.parse_args())
-
