@@ -13,22 +13,6 @@
   <property name="windowTitle">
    <string>Form</string>
   </property>
-  <widget class="QLabel" name="about_lbl">
-   <property name="geometry">
-    <rect>
-     <x>0</x>
-     <y>10</y>
-     <width>601</width>
-     <height>321</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>About</string>
-   </property>
-   <property name="alignment">
-    <set>Qt::AlignCenter</set>
-   </property>
-  </widget>
   <widget class="QPushButton" name="back_btn">
    <property name="geometry">
     <rect>
@@ -40,6 +24,16 @@
    </property>
    <property name="text">
     <string>back</string>
+   </property>
+  </widget>
+  <widget class="QTextBrowser" name="about_txt">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>10</y>
+     <width>601</width>
+     <height>321</height>
+    </rect>
    </property>
   </widget>
  </widget>

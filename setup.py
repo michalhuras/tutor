@@ -8,5 +8,7 @@ setup(
     license='',
     author='MH',
     author_email='',
-    description=''
+    description='Purpose of this application is to help users with learning information collected'
+                'as a set of questions and answers. Simular pattern of learning is used in flashcards,'
+                ' wildly used in languages learning.'
 )

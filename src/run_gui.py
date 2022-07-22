@@ -8,9 +8,11 @@ from PySide6.QtWidgets import QWidget, QStackedWidget
 from src.gui.main_menu_ui import Ui_MainMenu
 from src.gui.not_implemented_ui import Ui_Form as Ui_NotImplemented
 from src.gui.question_ui import Ui_Form as Ui_Question
+from src.gui.about_ui import Ui_Form as Ui_About
 
 MAIN_WINDOW_SIZE = (600, 400)
 PREVIOUS_STRATEGY = None
+
 
 class NotImplementedWindow(QWidget, Ui_NotImplemented):
     """Functionality not implemented notifier widget. """
@@ -39,6 +41,25 @@ class QuestionWidget(QWidget, Ui_Question):
         """Constructor. """
         super().__init__(*args, **kwargs)
         self.setupUi(self)
+
+
+class AboutWidget(QWidget, Ui_About):
+    """About program widget. """
+
+    def __init__(self, *args, **kwargs):
+        """Constructor. """
+        super().__init__(*args, **kwargs)
+        self.setupUi(self)
+
+        self.about_txt.setMarkdown(self.get_readme())
+
+    @staticmethod
+    def get_readme() -> str:
+        """ Get text from readme file and put in widget's text browser.
+        TODO Extract from this class.
+        """
+        with open('README.md') as readme_file:
+            return readme_file.read()
 
 
 class MainMenuStrategy(QObject):
@@ -87,7 +108,7 @@ class MainMenuStrategy(QObject):
         print('manage')
         self.strategy_change.emit(self.manage_quiz_strategy)
 
-    def get_widgets(self) -> QWidget:
+    def get_widgets(self) -> Iterator[QWidget]:
         """ TODO """
         yield self.widget
         yield from self.quiz_strategy.get_widgets()
@@ -103,7 +124,7 @@ class AboutProgramStrategy(QObject):
     def __init__(self):
         super().__init__()
 
-        self.widget = NotImplementedWindow()
+        self.widget = AboutWidget()
 
         self.init_gui_signals()
 
