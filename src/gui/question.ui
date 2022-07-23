@@ -22,7 +22,59 @@
      <height>321</height>
     </rect>
    </property>
-   <layout class="QVBoxLayout" name="answers_layout">
+   <layout class="QVBoxLayout" name="main_layout">
+    <item>
+     <widget class="QLabel" name="correct_answer_lbl">
+      <property name="enabled">
+       <bool>true</bool>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>16777215</width>
+        <height>40</height>
+       </size>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>20</pointsize>
+        <weight>75</weight>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="text">
+       <string>Correct answer!</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QLabel" name="incorrect_answer_lbl">
+      <property name="enabled">
+       <bool>true</bool>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>16777215</width>
+        <height>40</height>
+       </size>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>20</pointsize>
+        <weight>75</weight>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="text">
+       <string>Incorrect answer!</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
+      </property>
+     </widget>
+    </item>
     <item>
      <widget class="QLabel" name="question_text_lbl">
       <property name="maximumSize">
@@ -44,9 +96,25 @@
       </property>
      </widget>
     </item>
+    <item>
+     <layout class="QVBoxLayout" name="answers_layout"/>
+    </item>
    </layout>
   </widget>
   <widget class="QPushButton" name="back_btn">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>360</y>
+     <width>121</width>
+     <height>25</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>back</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="check_next_btn">
    <property name="geometry">
     <rect>
      <x>460</x>
@@ -56,7 +124,7 @@
     </rect>
    </property>
    <property name="text">
-    <string>back</string>
+    <string>check/next</string>
    </property>
   </widget>
  </widget>

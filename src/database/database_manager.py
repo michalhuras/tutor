@@ -47,6 +47,32 @@ def get_quizzes(database_path: str) -> Optional[List[QuizModel]]:
     return [QuizModel.from_orm(quiz_orm) for quiz_orm in quizzes_orm_objects]
 
 
+def get_quizzes_names(database_path: str) -> List[QuizModel]:
+    """Return quizzes names. """
+    engine = create_engine(DATABASE_PREFIX + database_path, echo=False)
+
+    SessionClass = sessionmaker(bind=engine)
+    session = SessionClass()
+
+    quizzes_orm_objects = session.query(Quiz.name).all()
+
+    return [quiz_orm[0] for quiz_orm in quizzes_orm_objects]
+
+
+def get_quiz(database_path: str, quiz_name: str) -> QuizModel:
+    """Return quiz object. """
+    engine = create_engine(DATABASE_PREFIX + database_path, echo=False)
+
+    SessionClass = sessionmaker(bind=engine)
+    session = SessionClass()
+
+    quizzes_orm = session.query(Quiz).filter(Quiz.name.is_(quiz_name)).all()
+
+    print(quizzes_orm[0])
+    # TODO validation error handling
+    return QuizModel.from_orm(quizzes_orm[0])
+
+
 def create_database(database_path: str):
     """ Create database in path, initialised tables and put record with database version. """
     engine = create_engine(DATABASE_PREFIX + database_path, echo=False)
@@ -58,3 +84,5 @@ def create_database(database_path: str):
     version_model = Version(major=DATABASE_VERSION[0], minor=DATABASE_VERSION[1], patch=DATABASE_VERSION[2])
     session.add(version_model)
     session.commit()
+
+# create_database('./data/quiz.db')

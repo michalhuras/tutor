@@ -12,11 +12,17 @@ class AnswerModel(BaseModel):
         orm_mode = True
 
 
+class QuestionProgress(BaseModel):
+    """ TODO """
+    level: int = 0
+    correct_answer: int = 0
+
+
 class QuestionModel(BaseModel):
     """Single question model class. """
     text: str
     answers: List[AnswerModel]
-    progress: List[Any] = Field(default_factory=list)
+    progress: QuestionProgress = Field(default=None)
     image_path: Optional[str] = Field(default=None)
     comment: Optional[str] = Field(default=None)
     user_comment: Optional[str] = Field(default=None)
