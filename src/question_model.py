@@ -9,25 +9,31 @@ class AnswerModel(BaseModel):
     is_correct: bool
 
     class Config:
+        """Configuration set for a model class. """
         orm_mode = True
 
 
 class QuestionProgress(BaseModel):
-    """ TODO """
+    """ Question progress model class. """
     level: int = 0
     correct_answer: int = 0
+
+    class Config:
+        """Configuration set for a model class. """
+        orm_mode = True
 
 
 class QuestionModel(BaseModel):
     """Single question model class. """
     text: str
     answers: List[AnswerModel]
-    progress: QuestionProgress = Field(default=None)
+    progress: Optional[QuestionProgress] = Field(default=None)
     image_path: Optional[str] = Field(default=None)
     comment: Optional[str] = Field(default=None)
     user_comment: Optional[str] = Field(default=None)
 
     class Config:
+        """Configuration set for a model class. """
         orm_mode = True
 
 
@@ -39,11 +45,12 @@ class QuizModel(BaseModel):
     date: Optional[str]
 
     class Config:
+        """Configuration set for a model class. """
         orm_mode = True
 
 
 class LearningQuestion(QuestionModel):
-    """ TODO
+    """ Learning questions methods set in one class.
     There should be max 5 levels
     After 3 correct answers in a row question is upgraded to next level.
     After 3 failure answers in a row question is degraded to lower level
@@ -64,6 +71,7 @@ class LearningQuestion(QuestionModel):
         self.wrong_answers += 1
 
     class Config:
+        """Configuration set for a model class. """
         orm_mode = True
 
 
@@ -108,9 +116,10 @@ class LearningModel(BaseModel):
         return any(self.learning_levels[:-1])
 
     @classmethod
-    def create_from_quiz_model(cls, quiz_model: QuizModel): # TODO co tu dopisać zamiast LearningModel?
-        """ TODO """
+    def create_from_quiz_model(cls, quiz_model: QuizModel):
+        """Create class instance with initial data from quiz model. """
         return cls(learning_levels=[quiz_model.questions, [], [], [], []])
 
     class Config:
+        """Configuration set for a model class. """
         orm_mode = True
