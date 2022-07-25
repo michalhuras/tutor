@@ -5,6 +5,7 @@ from pydantic import conlist, BaseModel, Field
 
 class AnswerModel(BaseModel):
     """Answer to a question model class. """
+    id: Optional[int]
     text: str
     is_correct: bool
 
@@ -13,10 +14,11 @@ class AnswerModel(BaseModel):
         orm_mode = True
 
 
-class QuestionProgress(BaseModel):
+class QuestionUserDataModel(BaseModel):
     """ Question progress model class. """
     level: int = 0
     correct_answer: int = 0
+    comment: Optional[str]
 
     class Config:
         """Configuration set for a model class. """
@@ -25,9 +27,10 @@ class QuestionProgress(BaseModel):
 
 class QuestionModel(BaseModel):
     """Single question model class. """
+    id: Optional[int]
     text: str
     answers: List[AnswerModel]
-    progress: Optional[QuestionProgress] = Field(default=None)
+    user_data: Optional[QuestionUserDataModel] = Field(default=None)
     image_path: Optional[str] = Field(default=None)
     comment: Optional[str] = Field(default=None)
     user_comment: Optional[str] = Field(default=None)
@@ -39,6 +42,7 @@ class QuestionModel(BaseModel):
 
 class QuizModel(BaseModel):
     """Class for keeping track of an item in inventory."""
+    id: Optional[int]
     name: str
     questions: List[QuestionModel]
     description: Optional[str]

@@ -33,10 +33,9 @@ class Question(Base):
     text = Column(Text, nullable=False)
     image_path = Column(Text)
     comment = Column(Text)
-    user_comment = Column(Text)
 
     answers = relationship("Answer", backref=backref("question"))
-    progress = relationship("QuestionProgress", backref=backref("question"), uselist=False)
+    user_data = relationship("QuestionUserData", backref=backref("question"), uselist=False)
 
     def __repr__(self):
         """ Model objects representation. It is to represent a class object as text. """
@@ -44,7 +43,7 @@ class Question(Base):
                f'text=\'{self.text}\', answers=\'{self.answers}\', question_progress=\'{self.progress}\')>'
 
 
-class QuestionProgress(Base):
+class QuestionUserData(Base):
     """Question progress database table model. """
     __tablename__ = 'question_progress'
 
@@ -52,6 +51,7 @@ class QuestionProgress(Base):
     question_id = Column(Integer, ForeignKey("question.id"))
     level = Column(Integer, nullable=False)
     correct_answer = Column(Integer, nullable=False)
+    comment = Column(Text, nullable=True)
 
     def __repr__(self):
         """ Model objects representation. It is to represent a class object as text. """

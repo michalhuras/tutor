@@ -1,9 +1,11 @@
+import copy
 import tempfile
 from pathlib import Path
 from unittest import TestCase
 
 from src.database.database_manager import DatabaseManager
-from src.question_model import QuizModel, QuestionModel, AnswerModel, QuestionProgress
+from src.database.database_model import QuestionUserData
+from src.question_model import QuizModel, QuestionModel, AnswerModel, QuestionUserDataModel
 
 
 class DatabaseManagerTests(TestCase):
@@ -30,18 +32,18 @@ class DatabaseManagerTests(TestCase):
         self.database_manager.erase_all_quizzes()
 
         answers_1 = [
-            AnswerModel(text='A', is_correct=False),
-            AnswerModel(text='B', is_correct=True),
-            AnswerModel(text='C', is_correct=False)]
+            AnswerModel(id=1, text='A', is_correct=False),
+            AnswerModel(id=2, text='B', is_correct=True),
+            AnswerModel(id=3, text='C', is_correct=False)]
         answers_2 = [
-            AnswerModel(text='1', is_correct=False),
-            AnswerModel(text='2', is_correct=True),
-            AnswerModel(text='3', is_correct=False)
+            AnswerModel(id=4, text='1', is_correct=False),
+            AnswerModel(id=5, text='2', is_correct=True),
+            AnswerModel(id=6, text='3', is_correct=False)
         ]
-        questions = [QuestionModel(text='Question 1', answers=answers_1),
-                     QuestionModel(text='Question 2', answers=answers_2, image_path='image_path')]
-        first_quiz = QuizModel(name='First quiz', questions=questions)
-        second_quiz = QuizModel(name='Second quiz', questions=[])
+        questions = [QuestionModel(id=1, text='Question 1', answers=answers_1),
+                     QuestionModel(id=2, text='Question 2', answers=answers_2, image_path='image_path')]
+        first_quiz = QuizModel(id=1, name='First quiz', questions=questions)
+        second_quiz = QuizModel(id=2, name='Second quiz', questions=[])
         self.first_quiz = first_quiz
         self.second_quiz = second_quiz
         self.database_manager.add_quiz(first_quiz)
@@ -62,14 +64,13 @@ class DatabaseManagerTests(TestCase):
     def test_add_quiz(self):
         """Test adding single quiz to an existing database. """
         answers = [
-            AnswerModel(text='100', is_correct=False),
-            AnswerModel(text='200', is_correct=True),
-            AnswerModel(text='300', is_correct=False)
+            AnswerModel(id=10, text='100', is_correct=False),
+            AnswerModel(id=11, text='200', is_correct=True),
+            AnswerModel(id=12, text='300', is_correct=False)
         ]
-        question_progress = QuestionProgress(level=4, correct_answer=3)
-        # question_progress = None
-        questions = [QuestionModel(text='Question 1', answers=answers, progress=question_progress)]
-        new_quiz = QuizModel(name='New quiz', questions=questions)
+        user_data = QuestionUserDataModel(level=4, correct_answer=3)
+        questions = [QuestionModel(id=10, text='Question 1', answers=answers, user_data=user_data)]
+        new_quiz = QuizModel(id=10, name='New quiz', questions=questions)
 
         initial_state = self.database_manager.get_quizzes()
         self.assertFalse(new_quiz in initial_state)
@@ -95,11 +96,20 @@ class DatabaseManagerTests(TestCase):
         final_state = self.database_manager.get_quizzes()
         self.assertTrue(len(final_state) == 0)
 
-    def test_erase_all_quizzes(self):
-        """Test erasing every quiz in a database. """
+    def test_update_question_user_data(self):
+        """Test updating question user data, such as level, correct answers and notes. """
         initial_state = self.database_manager.get_quizzes()
-        self.assertTrue(len(initial_state) != 0)
+        self.assertEqual(initial_state, [self.first_quiz, self.second_quiz])
 
-        self.database_manager.erase_all_quizzes()
-        final_state = self.database_manager.get_quizzes()
-        self.assertTrue(len(final_state) == 0)
+        change_quiz = copy.deepcopy(self.first_quiz)
+
+        self.assertEqual(None, change_quiz.questions[0].user_data)
+
+        change_quiz.questions[0].user_data = QuestionUserDataModel(level=1, correct_answer=4, comment='new comment')
+        self.database_manager.update_question_user_data(change_quiz.questions[0].user_data, change_quiz.questions[0].id)
+        check_state = self.database_manager.get_quizzes()
+        self.assertEqual([change_quiz, self.second_quiz], check_state)
+
+        self.database_manager.update_question_user_data(change_quiz.questions[0].user_data, change_quiz.questions[0].id)
+        check_final_state = self.database_manager.get_quizzes()
+        self.assertEqual([change_quiz, self.second_quiz], check_final_state)
