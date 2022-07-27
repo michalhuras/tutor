@@ -33,7 +33,6 @@ class QuestionModel(BaseModel):
     user_data: Optional[QuestionUserDataModel] = Field(default=None)
     image_path: Optional[str] = Field(default=None)
     comment: Optional[str] = Field(default=None)
-    user_comment: Optional[str] = Field(default=None)
 
     class Config:
         """Configuration set for a model class. """

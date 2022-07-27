@@ -46,7 +46,7 @@ class DatabaseManager(metaclass=SingletonMeta):
 
         return [QuizModel.from_orm(quiz_orm) for quiz_orm in quizzes_orm_objects]
 
-    def get_quizzes_names(self) -> List[QuizModel]:
+    def get_quizzes_names(self) -> List[str]:
         """Return quizzes names. """
         quizzes_orm_objects = self.session.query(Quiz.name).all()
 
@@ -69,9 +69,9 @@ class DatabaseManager(metaclass=SingletonMeta):
     def update_question_user_data(self, user_data_model: QuestionUserDataModel, question_id: int) -> None:
         """Update a question's user note and progress parameters. """
         if not self.session.query(exists().where(QuestionUserData.question_id == question_id)).scalar():
-            progress = QuestionUserData(**user_data_model.dict())
-            progress.question_id = question_id
-            self.session.add(progress)
+            question_user_data = QuestionUserData(**user_data_model.dict())
+            question_user_data.question_id = question_id
+            self.session.add(question_user_data)
             self.session.commit()
         else:
             query = update(QuestionUserData) \
@@ -96,4 +96,4 @@ class DatabaseManager(metaclass=SingletonMeta):
         session.add(version_model)
         session.commit()
 
-# create_database('./data/quiz.db')
+# DatabaseManager.create_database('./data/quiz.db')

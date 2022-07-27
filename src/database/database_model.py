@@ -40,12 +40,12 @@ class Question(Base):
     def __repr__(self):
         """ Model objects representation. It is to represent a class object as text. """
         return f'<Question (id=\'{self.id}\', quiz_id=\'{self.quiz_id}\', ' \
-               f'text=\'{self.text}\', answers=\'{self.answers}\', question_progress=\'{self.progress}\')>'
+               f'text=\'{self.text}\', answers=\'{self.answers}\', user_data=\'{self.user_data}\')>'
 
 
 class QuestionUserData(Base):
-    """Question progress database table model. """
-    __tablename__ = 'question_progress'
+    """Question user data database table model. """
+    __tablename__ = 'question_user_data'
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     question_id = Column(Integer, ForeignKey("question.id"))
@@ -56,7 +56,7 @@ class QuestionUserData(Base):
     def __repr__(self):
         """ Model objects representation. It is to represent a class object as text. """
         return f'<QuestionProgress (id=\'{self.id}\', question_id=\'{self.question_id}\', ' \
-               f'level=\'{self.level}\', correct_answer=\'{self.correct_answer}\')>'
+               f'level=\'{self.level}\', correct_answer=\'{self.correct_answer}\', comment=\'comment\')>'
 
 
 class Answer(Base):
@@ -85,5 +85,4 @@ class Version(Base):
 
     def __repr__(self):
         """ Model objects representation. It is to represent a class object as text. """
-        return f'<Question (id=\'{self.id}\', quiz_id=\'{self.quiz_id}\', ' \
-               f'text=\'{self.text}\', answers=\'{self.answers}\', question_progress=\'{self.question_progress}\')>'
+        return f'<Version (id=\'{self.id}\', major=\'{self.major}\', minor=\'{self.minor}\', patch=\'{self.patch}\')>'

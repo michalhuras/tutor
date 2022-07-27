@@ -7,13 +7,13 @@ from PySide6 import QtWidgets
 from PySide6.QtCore import QObject, Signal
 from PySide6.QtWidgets import QWidget, QStackedWidget, QPushButton, QCheckBox, QVBoxLayout
 
-from src.database.database_manager import get_quizzes_names, get_quiz
+from src.database.database_manager import DatabaseManager
 from src.gui.main_menu_ui import Ui_MainMenu
 from src.gui.not_implemented_ui import Ui_Form as Ui_NotImplemented
 from src.gui.question_ui import Ui_Form as Ui_Question
 from src.gui.about_ui import Ui_Form as Ui_About
 from src.gui.choose_quiz import Ui_Form as Ui_ChooseQuiz
-from src.question_model import LearningModel, QuestionModel
+from src.question_model import LearningModel
 
 MAIN_WINDOW_SIZE = (600, 400)
 PREVIOUS_STRATEGY = None
@@ -48,6 +48,16 @@ class QuestionWidget(QWidget, Ui_Question):
         super().__init__(*args, **kwargs)
         self.setupUi(self)
 
+    @staticmethod
+    def delete_subwidgets(owner: QWidget):
+        """Delete owner subwidgets. Used especially to delete a layout checkboxes. """
+        [owner.itemAt(index).widget().deleteLater() for index in reversed(range(owner.count()))]
+
+    @staticmethod
+    def disable_subwidgets(owner: QWidget):
+        """Disable owner subwidgets. Used especially to disable a layout checkboxes. """
+        [owner.itemAt(index).widget().setEnabled(False) for index in range(owner.count())]
+
 
 class ChooseQuizWidget(QWidget, Ui_ChooseQuiz):
     """Main menu widget. """
@@ -66,7 +76,7 @@ class ChooseQuizWidget(QWidget, Ui_ChooseQuiz):
             self.quizzes_layout.addWidget(new_button)
 
     def choose_quiz_btn(self, quiz):
-        """ TODO """
+        """Action for choosing one of quizzes. It emits a signal that changes main widget. """
         self.choose_quiz.emit(quiz)
 
 
@@ -192,7 +202,7 @@ class CreateQuizStrategy(QObject):
     strategy_change = Signal(QObject)
 
     def __init__(self):
-        """ TODO """
+        """Constructor. """
         super().__init__()
 
         self.widget = NotImplementedWindow()
@@ -212,18 +222,20 @@ class CreateQuizStrategy(QObject):
 
 
 class QuestionStrategy(QObject):
-    """ TODO """
+    """Single question form strategy. It defines the logic behind question widget. """
     strategy_change = Signal(QObject)
 
     NEXT_QUESTION_LABEL = 'Next question'
     CHECK_QUESTION_LABEL = 'Check question'
 
     class QuestionWidgetState(Enum):
+        """State of a question widget. """
         NEXT_QUESTION = auto()
         CHECK_QUESTION = auto()
 
     class ManageAnswer:
         def __init__(self):
+            """Constructor. """
             self.answer_model = []
             self.correct_answer_model = []
 
@@ -247,6 +259,7 @@ class QuestionStrategy(QObject):
                     if answer != correct_answer]
 
     def __init__(self):
+        """Constructor. """
         super().__init__()
 
         self.quiz_name = None
@@ -266,7 +279,7 @@ class QuestionStrategy(QObject):
         self.widget.check_next_btn.clicked.connect(self.next_or_check_question)
 
     def back_button(self):
-        """ TODO """
+        """Action for back button clicked signal. """
         self.strategy_change.emit(PREVIOUS_STRATEGY)
 
     def get_widgets(self) -> QWidget:
@@ -274,11 +287,12 @@ class QuestionStrategy(QObject):
         yield self.widget
 
     def set_quiz(self, quiz_name):
-        """ TODO """
+        """Set current quiz. """
         self.quiz_name = quiz_name
 
     def start_quiz(self):
-        quiz_model = get_quiz(QUIZ_DB_PATH, self.quiz_name)
+        database_manager = DatabaseManager(QUIZ_DB_PATH)
+        quiz_model = database_manager.get_quiz(self.quiz_name)
         self.question_iterator = iter(quiz_model.questions)
         # TODO algorytm przechodzenia po kolejnych pytaniach
         # (iterator uwzględniający częstość to iż częście powinny pojawiać się pytania z levelu 1 niż 4)
@@ -288,7 +302,7 @@ class QuestionStrategy(QObject):
         self.draw_next_question()
 
     def draw_next_question(self):
-        """ TODO """
+        """Draw in widget information about next question. """
         question_model = None
         try:
             question_model = next(self.question_iterator)
@@ -303,8 +317,8 @@ class QuestionStrategy(QObject):
         self.current_question = question_model
 
         self.widget.question_text_lbl.setText(question_model.text)
-        for index in reversed(range(self.widget.main_layout.findChild(QVBoxLayout, 'answers_layout').count())):
-            self.widget.main_layout.findChild(QVBoxLayout, 'answers_layout').itemAt(index).widget().deleteLater()
+
+        self.widget.delete_subwidgets(self.widget.main_layout.findChild(QVBoxLayout, 'answers_layout'))
 
         for index, answer in enumerate(question_model.answers):
             self.manage_answer.add_answer(answer.is_correct)
@@ -316,18 +330,19 @@ class QuestionStrategy(QObject):
         self.widget_state = self.QuestionWidgetState.CHECK_QUESTION
 
     def next_or_check_question(self):
-        """ TODO """
-        print('Tutaj?')
+        """Action for button next or checked clicked signal.
+        It runs the checking question procedure or draws next question, depending on the state in which strategy is.
+        """
         if self.widget_state == self.QuestionWidgetState.CHECK_QUESTION:
-            print('Checking question!')
             self.widget.check_next_btn.setText(self.NEXT_QUESTION_LABEL)
             self.widget_state = self.QuestionWidgetState.NEXT_QUESTION
+            self.widget.disable_subwidgets(self.widget.main_layout.findChild(QVBoxLayout, 'answers_layout'))
+
             if self.manage_answer.is_correct():
                 self.widget.correct_answer_lbl.show()
             else:
                 self.widget.incorrect_answer_lbl.show()
         elif self.widget_state == self.QuestionWidgetState.NEXT_QUESTION:
-            print('Next question!')
             self.widget.check_next_btn.setText(self.CHECK_QUESTION_LABEL)
             self.widget_state = self.QuestionWidgetState.CHECK_QUESTION
             self.draw_next_question()
@@ -341,10 +356,12 @@ class QuizStrategy(QObject):
     strategy_change = Signal(QObject)
 
     def __init__(self):
+        """Constructor. """
         super().__init__()
 
         choose_quiz_widget = ChooseQuizWidget()
-        choose_quiz_widget.set_quizzes_to_chose_from(get_quizzes_names(QUIZ_DB_PATH))
+        database_manager = DatabaseManager(QUIZ_DB_PATH)
+        choose_quiz_widget.set_quizzes_to_chose_from(database_manager.get_quizzes_names())
         choose_quiz_widget.choose_quiz.connect(self.choose_quiz)
         self.widget = choose_quiz_widget
         self.question_strategy = QuestionStrategy()
@@ -356,7 +373,7 @@ class QuizStrategy(QObject):
         self.widget.back_btn.clicked.connect(self.back_button)
 
     def back_button(self):
-        """ TODO """
+        """Action for back button clicked signal. """
         self.strategy_change.emit(PREVIOUS_STRATEGY)
 
     def choose_quiz(self, quiz_name: str):
