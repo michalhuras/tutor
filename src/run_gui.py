@@ -49,14 +49,24 @@ class QuestionWidget(QWidget, Ui_Question):
         self.setupUi(self)
 
     @staticmethod
-    def delete_subwidgets(owner: QWidget):
+    def delete_subwidgets(owner: QVBoxLayout):
         """Delete owner subwidgets. Used especially to delete a layout checkboxes. """
         [owner.itemAt(index).widget().deleteLater() for index in reversed(range(owner.count()))]
 
     @staticmethod
-    def disable_subwidgets(owner: QWidget):
+    def disable_subwidgets(owner: QVBoxLayout):
         """Disable owner subwidgets. Used especially to disable a layout checkboxes. """
         [owner.itemAt(index).widget().setEnabled(False) for index in range(owner.count())]
+
+    @staticmethod
+    def red_subwidgets_at(owner: QVBoxLayout, positions: List[int]):
+        """Set red color for subwidgets at a specified positions. """
+        [owner.itemAt(index).widget().setStyleSheet("color: red; font-weight: bold;") for index in positions]
+
+    @staticmethod
+    def green_subwidgets_at(owner: QVBoxLayout, positions: List[int]):
+        """Set green color for subwidgets at a specified positions. """
+        [owner.itemAt(index).widget().setStyleSheet("color: green") for index in positions]
 
 
 class ChooseQuizWidget(QWidget, Ui_ChooseQuiz):
@@ -255,7 +265,7 @@ class QuestionStrategy(QObject):
 
         def get_differences(self) -> List[int]:
             return [index for index, answer, correct_answer in
-                    zip(enumerate(self.answer_model), self.answer_model, self.correct_answer_model)
+                    zip(range(len(self.answer_model)), self.answer_model, self.correct_answer_model)
                     if answer != correct_answer]
 
     def __init__(self):
@@ -321,6 +331,7 @@ class QuestionStrategy(QObject):
         self.widget.delete_subwidgets(self.widget.main_layout.findChild(QVBoxLayout, 'answers_layout'))
 
         for index, answer in enumerate(question_model.answers):
+            print('answer', answer.text, answer.is_correct)
             self.manage_answer.add_answer(answer.is_correct)
             answer_check_box = QCheckBox(answer.text)
             answer_check_box.clicked.connect(partial(self.manage_answer.update_answer, index))
@@ -338,10 +349,17 @@ class QuestionStrategy(QObject):
             self.widget_state = self.QuestionWidgetState.NEXT_QUESTION
             self.widget.disable_subwidgets(self.widget.main_layout.findChild(QVBoxLayout, 'answers_layout'))
 
+            self.widget.green_subwidgets_at(
+                self.widget.main_layout.findChild(QVBoxLayout, 'answers_layout'),
+                [i for i in range(self.widget.main_layout.findChild(QVBoxLayout, 'answers_layout').count())])
+
             if self.manage_answer.is_correct():
                 self.widget.correct_answer_lbl.show()
             else:
                 self.widget.incorrect_answer_lbl.show()
+                self.widget.red_subwidgets_at(
+                    self.widget.main_layout.findChild(QVBoxLayout, 'answers_layout'),
+                    self.manage_answer.get_differences())
         elif self.widget_state == self.QuestionWidgetState.NEXT_QUESTION:
             self.widget.check_next_btn.setText(self.CHECK_QUESTION_LABEL)
             self.widget_state = self.QuestionWidgetState.CHECK_QUESTION
