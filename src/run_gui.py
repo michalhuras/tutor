@@ -303,22 +303,15 @@ class QuestionStrategy(QObject):
     def start_quiz(self):
         database_manager = DatabaseManager(QUIZ_DB_PATH)
         quiz_model = database_manager.get_quiz(self.quiz_name)
-        self.question_iterator = iter(quiz_model.questions)
-        # TODO algorytm przechodzenia po kolejnych pytaniach
-        # (iterator uwzględniający częstość to iż częście powinny pojawiać się pytania z levelu 1 niż 4)
-
-        learning_model = LearningModel.create_from_quiz_model(quiz_model)
-        # TODO learning_model - refaktoryzacja.
+        self.question_iterator = LearningModel.create_from_quiz_model(quiz_model)
         self.draw_next_question()
 
     def draw_next_question(self):
         """Draw in widget information about next question. """
-        question_model = None
-        try:
-            question_model = next(self.question_iterator)
-        except StopIteration:
+        question_model = next(self.question_iterator, None)
+        if not question_model:
             print('stop iteration!')
-            # TODO dopisać stop iteration
+            # TODO write finish screen
 
         self.widget.correct_answer_lbl.hide()
         self.widget.incorrect_answer_lbl.hide()
@@ -331,7 +324,6 @@ class QuestionStrategy(QObject):
         self.widget.delete_subwidgets(self.widget.main_layout.findChild(QVBoxLayout, 'answers_layout'))
 
         for index, answer in enumerate(question_model.answers):
-            print('answer', answer.text, answer.is_correct)
             self.manage_answer.add_answer(answer.is_correct)
             answer_check_box = QCheckBox(answer.text)
             answer_check_box.clicked.connect(partial(self.manage_answer.update_answer, index))
