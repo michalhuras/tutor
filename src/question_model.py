@@ -30,6 +30,11 @@ class QuestionUserDataModel(BaseModel):
         orm_mode = True
 
 
+# Correct answers needed to move question to the next level
+NEEDED_CORRECT_ANSWERS: List[int] = [3, 4, 5, 6]
+NUMBER_OF_LEVELS = 5
+
+
 class QuestionModel(BaseModel):
     """Single question model class. """
     id: Optional[int]
@@ -42,6 +47,21 @@ class QuestionModel(BaseModel):
     class Config:
         """Configuration set for a model class. """
         orm_mode = True
+
+    def correct_answer(self) -> None:
+        """React on a correct answer. Increase number of correct answers and if it is needed move to next level. """
+        if self.user_data.level == NUMBER_OF_LEVELS - 1:
+            return
+
+        self.user_data.correct_answer += 1
+        if self.user_data.correct_answer >= NEEDED_CORRECT_ANSWERS[self.user_data.level]:
+            self.user_data.correct_answer = 0
+            old_level = self.user_data.level
+            self.user_data.level = old_level + 1
+
+    def incorrect_answer(self) -> None:
+        """React to an incorrect answer. Zero the number of correct answers. """
+        self.user_data.correct_answer = 0
 
 
 class QuizModel(BaseModel):
@@ -61,11 +81,8 @@ class LearningModel(BaseModel):
     """ There are 5 levels. At the beginning every question starts in first level.
     After defined number of tries with positive answers it is promoted to next level.
     The higher the question is, the lower probability should be that it is going to be asked. """
-    # NUMBER_OF_LEVELS: int = Fiels
     NUMBER_OF_LEVELS: ClassVar[int] = 5
     learning_levels: conlist(List[QuestionModel], min_items=NUMBER_OF_LEVELS, max_items=NUMBER_OF_LEVELS)
-    current_level: Optional[int] = None
-    current_question: Optional[QuestionModel] = None
 
     def __iter__(self):
         """Return iterator - self. """
@@ -74,48 +91,31 @@ class LearningModel(BaseModel):
     def __next__(self):
         """Get next question to iterate. Draw a learning level to chose question from, next choose question from it. """
         questions_on_levels = self.get_number_of_questions_on_levels()
-        if not any(questions_on_levels[:-1]):
+        if not self.is_anything_to_learn():
             raise StopIteration('Study finished, every question is on the top level of study.')
         levels_probability = [0.5, 0.3, 0.1, 0.07, 0.03]
 
         level_contain_elements = [1 if len(level) else 0 for level in self.learning_levels]
         levels_probability_not_empty = \
             [multiplier * multiplicand for multiplier, multiplicand in zip(levels_probability, level_contain_elements)]
-        self.current_level = random.choices([i for i in range(self.NUMBER_OF_LEVELS)],
-                                            weights=levels_probability_not_empty)[0]
-        choose_level = self.learning_levels[self.current_level]
+        choose_level = self.learning_levels[random.choices([i for i in range(self.NUMBER_OF_LEVELS)],
+                                                           weights=levels_probability_not_empty)[0]]
 
         try:
             question = random.choice(choose_level)
         except IndexError:
             return next(self)
-        self.current_question = question
         return question
 
     def get_number_of_questions_on_levels(self) -> List[int]:
         """Get number of questions on every level """
         return [len(list_of_questions) for list_of_questions in self.learning_levels]
 
-    def move_to_next_level(self, current_level, index) -> None:
-        """Erase question from current level and add it to the next level.
-        If the question is already on the highest level nothing will happen.
-        """
-        if current_level == self.NUMBER_OF_LEVELS - 1:
-            return
-
-        question = self.learning_levels[current_level].pop(index)
-        self.learning_levels[current_level + 1].append(question)
-
-    def move_to_lower_level(self, current_level, index) -> None:
-        """Erase question from current level and add it to the previous level.
-        If the question is already on the lowest level nothing will happen.
-        """
-        _lowest_level = 0
-        if current_level == _lowest_level:
-            return
-
-        question = self.learning_levels[current_level].pop(index)
-        self.learning_levels[current_level - 1].append(question)
+    def update_question(self, question: QuestionModel) -> None:
+        """Update level of the question if it is needed. """
+        if question not in self.learning_levels[question.user_data.level]:
+            self.learning_levels[question.user_data.level - 1].remove(question)
+            self.learning_levels[question.user_data.level].append(question)
 
     def is_anything_to_learn(self) -> bool:
         """Check if there are any question in level other than last one. """

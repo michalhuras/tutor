@@ -13,7 +13,7 @@ from src.gui.not_implemented_ui import Ui_Form as Ui_NotImplemented
 from src.gui.question_ui import Ui_Form as Ui_Question
 from src.gui.about_ui import Ui_Form as Ui_About
 from src.gui.choose_quiz import Ui_Form as Ui_ChooseQuiz
-from src.question_model import LearningModel
+from src.question_model import LearningModel, QuestionModel
 
 MAIN_WINDOW_SIZE = (600, 400)
 PREVIOUS_STRATEGY = None
@@ -280,6 +280,7 @@ class QuestionStrategy(QObject):
         self.manage_answer = self.ManageAnswer()
 
         self.question_iterator = None
+        self.database_manager = DatabaseManager(QUIZ_DB_PATH)
 
         self.init_gui_signals()
 
@@ -301,23 +302,25 @@ class QuestionStrategy(QObject):
         self.quiz_name = quiz_name
 
     def start_quiz(self):
-        database_manager = DatabaseManager(QUIZ_DB_PATH)
-        quiz_model = database_manager.get_quiz(self.quiz_name)
+        """TODO"""
+        quiz_model = self.database_manager.get_quiz(self.quiz_name)
         self.question_iterator = LearningModel.create_from_quiz_model(quiz_model)
         self.draw_next_question()
 
     def draw_next_question(self):
         """Draw in widget information about next question. """
-        question_model = next(self.question_iterator, None)
-        if not question_model:
+        try:
+            question_model = next(self.question_iterator, None)
+        except StopIteration:
             print('stop iteration!')
             # TODO write finish screen
+            return
 
         self.widget.correct_answer_lbl.hide()
         self.widget.incorrect_answer_lbl.hide()
 
         self.manage_answer.new_question()
-        self.current_question = question_model
+        self.current_question: QuestionModel = question_model
 
         self.widget.question_text_lbl.setText(question_model.text)
 
@@ -347,18 +350,20 @@ class QuestionStrategy(QObject):
 
             if self.manage_answer.is_correct():
                 self.widget.correct_answer_lbl.show()
+                self.current_question.correct_answer()
+                self.question_iterator.update_question(self.current_question)
             else:
                 self.widget.incorrect_answer_lbl.show()
                 self.widget.red_subwidgets_at(
                     self.widget.main_layout.findChild(QVBoxLayout, 'answers_layout'),
                     self.manage_answer.get_differences())
+                self.current_question.incorrect_answer()
+            self.database_manager.update_question_user_data(user_data_model=self.current_question.user_data,
+                                                            question_id=self.current_question.id)
         elif self.widget_state == self.QuestionWidgetState.NEXT_QUESTION:
             self.widget.check_next_btn.setText(self.CHECK_QUESTION_LABEL)
             self.widget_state = self.QuestionWidgetState.CHECK_QUESTION
             self.draw_next_question()
-
-    # TODO aktualizacja stanu nauki pytań
-    # TODO odczyt z bazy danych stanu aktualnej nauki
 
 
 class QuizStrategy(QObject):

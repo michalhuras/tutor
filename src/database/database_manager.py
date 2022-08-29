@@ -81,6 +81,7 @@ class DatabaseManager(metaclass=SingletonMeta):
                         comment=user_data_model.comment) \
                 .execution_options(synchronize_session="fetch")
             self.session.execute(query)
+            self.session.commit()
 
     @classmethod
     def create_database(cls, database_path: str):
