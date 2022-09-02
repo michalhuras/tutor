@@ -90,7 +90,6 @@ class LearningModel(BaseModel):
 
     def __next__(self):
         """Get next question to iterate. Draw a learning level to chose question from, next choose question from it. """
-        questions_on_levels = self.get_number_of_questions_on_levels()
         if not self.is_anything_to_learn():
             raise StopIteration('Study finished, every question is on the top level of study.')
         levels_probability = [0.5, 0.3, 0.1, 0.07, 0.03]
@@ -100,12 +99,7 @@ class LearningModel(BaseModel):
             [multiplier * multiplicand for multiplier, multiplicand in zip(levels_probability, level_contain_elements)]
         choose_level = self.learning_levels[random.choices([i for i in range(self.NUMBER_OF_LEVELS)],
                                                            weights=levels_probability_not_empty)[0]]
-
-        try:
-            question = random.choice(choose_level)
-        except IndexError:
-            return next(self)
-        return question
+        return random.choice(choose_level)
 
     def get_number_of_questions_on_levels(self) -> List[int]:
         """Get number of questions on every level """

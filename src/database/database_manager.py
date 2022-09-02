@@ -1,11 +1,11 @@
 """Database manager. It is used to add new questions to existing database. """
-from typing import List
+from typing import List, Optional
 
 from sqlalchemy import create_engine, update, exists
 from sqlalchemy.orm import sessionmaker
 
 from src.database.database_model import Quiz, Question, QuestionUserData, Answer, Base, Version
-from src.database.singleton_meta import SingletonMeta
+from src.singleton_meta import SingletonMeta
 from src.question_model import QuizModel, QuestionUserDataModel
 
 
@@ -14,7 +14,7 @@ class DatabaseManager(metaclass=SingletonMeta):
     DATABASE_PREFIX = 'sqlite:///'
     DATABASE_VERSION = (0, 0, 1)
 
-    def __init__(self, database_path: str) -> None:
+    def __init__(self, database_path: Optional[str] = None) -> None:
         self.database_path = database_path
         self.engine = create_engine(self.DATABASE_PREFIX + database_path, echo=False)
         # TODO exception if the database doesn't exist
