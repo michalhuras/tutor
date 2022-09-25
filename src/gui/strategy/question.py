@@ -3,60 +3,53 @@ from enum import auto, Enum
 from functools import partial
 from typing import List
 
-from PySide6.QtCore import QObject, Signal
-from PySide6.QtWidgets import QVBoxLayout, QCheckBox, QWidget
+from PySide6.QtCharts import QBarSet, QChart, QChartView, QHorizontalPercentBarSeries
+from PySide6.QtCore import QObject, Signal, QMargins
+from PySide6.QtGui import QPainter, QColor, QColorConstants
+from PySide6.QtWidgets import QVBoxLayout, QCheckBox, QWidget, QSizePolicy
 
 from src.database.database_manager import DatabaseManager
 from src.gui.common import PREVIOUS_STRATEGY
 from src.gui.widgets import QuestionWidget
 from src.question_model import QuestionModel, LearningModel
 
-from PySide6.QtGui import QPainter
-from PySide6.QtCharts import QBarSet, QChart, QChartView, QHorizontalPercentBarSeries
+
+def blend_colors(first_color: QColor, second_color: QColor, number_of_steps: int) -> QColor:
+    """Create gradient colors between two edges with defined number of steps. """
+    rgba_first, rgba_last = first_color.getRgb(), second_color.getRgb()
+    rgb_first, rgb_last = rgba_first[:-1], rgba_last[:-1]
+    delta = [(second_element - first_element) / (number_of_steps - 1) for
+             first_element, second_element in zip(rgb_first, rgb_last)]
+
+    for index in range(number_of_steps):
+        rgb_color = [int(first_element + (second_element * index)) for
+                     first_element, second_element in zip(rgb_first, delta)]
+        yield QColor(*rgb_color)
 
 
-def get_me_chart() -> QWidget:
-
-    set0 = QBarSet("Jane")
-    set1 = QBarSet("Jane")
-    set2 = QBarSet("Jane")
-    set3 = QBarSet("Jane")
-    set4 = QBarSet("Jane")
-
-    set0.append([4])
-    set1.append([5])
-    set2.append([7])
-    set3.append([3])
-    set4.append([5])
+def create_progress_chart(levels_questions: List[int]) -> QWidget:
+    """Create progress chart from the input data. """
+    data_sets = [QBarSet(str(index)) for index, _ in enumerate(levels_questions)]
+    [single_Set.append([value]) for single_Set, value in zip(data_sets, levels_questions)]
+    [single_Set.setColor(color) for single_Set, color in
+     zip(data_sets, blend_colors(QColorConstants.Red, QColorConstants.Green, len(levels_questions)))]
 
     series = QHorizontalPercentBarSeries()
-    series.append(set0)
-    series.append(set1)
-    series.append(set2)
-    series.append(set3)
-    series.append(set4)
 
-
+    [series.append(single_Set) for single_Set in data_sets]
 
     chart = QChart()
     chart.addSeries(series)
+    chart.setSizePolicy(QSizePolicy.Maximum, QSizePolicy.Maximum)
 
-    # chart.setTitle("Simple percentbarchart example")
-    # chart.setAnimationOptions(QChart.SeriesAnimations)
-
-    # categories = ["Jan", "Feb", "Mar", "Apr", "May", "Jun"]
-    # axis = QBarCategoryAxis()
-    # axis.append(categories)
-    # chart.createDefaultAxes()
-    # chart.setAxisX(axis, series)
-    #
-    # chart.legend().setVisible(True)
-    # chart.legend().setAlignment(Qt.AlignBottom)
-    #
+    chart.legend().setVisible(False)
+    margins = QMargins(0, 0, 0, 0)
+    chart.setMargins(margins)
+    chart.setSizePolicy(QSizePolicy.Maximum, QSizePolicy.Maximum)
     chart_view = QChartView(chart)
     chart_view.setRenderHint(QPainter.Antialiasing)
+    chart_view.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
 
-    # self.setCentralWidget()
     return chart_view
 
 
@@ -160,7 +153,8 @@ class QuestionStrategy(QObject):
             answer_check_box = QCheckBox(answer.text)
             answer_check_box.clicked.connect(partial(self.manage_answer.update_answer, index))
             self.widget.main_layout.findChild(QVBoxLayout, 'answers_layout').addWidget(answer_check_box)
-        self.widget.main_layout.findChild(QVBoxLayout, 'answers_layout').addWidget(get_me_chart())
+        progress_chart = create_progress_chart(self.question_iterator.get_number_of_questions_on_levels())
+        self.widget.findChild(QVBoxLayout, 'chart_layout').addWidget(progress_chart)
 
         self.widget.check_next_btn.setText(self.CHECK_QUESTION_LABEL)
         self.widget_state = self.QuestionWidgetState.CHECK_QUESTION

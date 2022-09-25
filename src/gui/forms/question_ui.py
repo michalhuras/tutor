@@ -25,7 +25,7 @@ class Ui_Form(object):
         Form.resize(600, 400)
         self.verticalLayoutWidget = QWidget(Form)
         self.verticalLayoutWidget.setObjectName(u"verticalLayoutWidget")
-        self.verticalLayoutWidget.setGeometry(QRect(10, 20, 571, 321))
+        self.verticalLayoutWidget.setGeometry(QRect(10, 50, 571, 291))
         self.main_layout = QVBoxLayout(self.verticalLayoutWidget)
         self.main_layout.setObjectName(u"main_layout")
         self.main_layout.setContentsMargins(0, 0, 0, 0)
@@ -71,6 +71,12 @@ class Ui_Form(object):
         self.check_next_btn = QPushButton(Form)
         self.check_next_btn.setObjectName(u"check_next_btn")
         self.check_next_btn.setGeometry(QRect(460, 360, 121, 25))
+        self.verticalLayoutWidget_2 = QWidget(Form)
+        self.verticalLayoutWidget_2.setObjectName(u"verticalLayoutWidget_2")
+        self.verticalLayoutWidget_2.setGeometry(QRect(9, 9, 571, 31))
+        self.chart_layout = QVBoxLayout(self.verticalLayoutWidget_2)
+        self.chart_layout.setObjectName(u"chart_layout")
+        self.chart_layout.setContentsMargins(0, 0, 0, 0)
 
         self.retranslateUi(Form)
 
