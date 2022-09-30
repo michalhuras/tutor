@@ -2,10 +2,10 @@
 from PySide6.QtCore import QObject, Signal
 from PySide6.QtWidgets import QWidget
 
-from src.database.database_manager import DatabaseManager
-from src.gui.common import PREVIOUS_STRATEGY
-from src.gui.strategy.question import QuestionStrategy
-from src.gui.widgets import ChooseQuizWidget
+from database.database_manager import DatabaseManager
+from gui.common import PREVIOUS_STRATEGY
+from gui.strategy.question import QuestionStrategy
+from gui.widgets import ChooseQuizWidget
 
 
 class QuizStrategy(QObject):

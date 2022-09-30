@@ -4,9 +4,9 @@ from typing import List, Optional
 from sqlalchemy import create_engine, update, exists
 from sqlalchemy.orm import sessionmaker
 
-from src.database.database_model import Quiz, Question, QuestionUserData, Answer, Base, Version
-from src.singleton_meta import SingletonMeta
-from src.question_model import QuizModel, QuestionUserDataModel
+from database.database_model import Quiz, Question, QuestionUserData, Answer, Base, Version
+from singleton_meta import SingletonMeta
+from question_model import QuizModel, QuestionUserDataModel
 
 
 class DatabaseManager(metaclass=SingletonMeta):

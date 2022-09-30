@@ -1,8 +1,8 @@
 """Get data from quiz text file and put it into SQLite database file. Database version used in this script: 0.0.1. """
 from argparse import ArgumentParser, Namespace
 
-from src.database.database_manager import add_quiz
-from src.run import get_quiz_model
+from database.database_manager import add_quiz
+from run import get_quiz_model
 
 DATABASE_PATH = 'data/quiz.db'
 

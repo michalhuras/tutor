@@ -3,13 +3,13 @@ import sys
 
 from PySide6 import QtWidgets
 
-from src.database.database_manager import DatabaseManager
-from src.gui.main_window import MainWindow
-from src.gui.strategy.about_program import AboutProgramStrategy
-from src.gui.strategy.create_quiz import CreateQuizStrategy
-from src.gui.strategy.main_menu import MainMenuStrategy
-from src.gui.strategy.manage_quiz import ManageQuizStrategy
-from src.gui.strategy.quiz import QuizStrategy
+from database.database_manager import DatabaseManager
+from gui.main_window import MainWindow
+from gui.strategy.about_program import AboutProgramStrategy
+from gui.strategy.create_quiz import CreateQuizStrategy
+from gui.strategy.main_menu import MainMenuStrategy
+from gui.strategy.manage_quiz import ManageQuizStrategy
+from gui.strategy.quiz import QuizStrategy
 
 QUIZ_DB_PATH = './data/quiz.db'
 

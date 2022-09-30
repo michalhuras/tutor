@@ -8,10 +8,10 @@ from PySide6.QtCore import QObject, Signal, QMargins
 from PySide6.QtGui import QPainter, QColor, QColorConstants
 from PySide6.QtWidgets import QVBoxLayout, QCheckBox, QWidget, QSizePolicy
 
-from src.database.database_manager import DatabaseManager
-from src.gui.common import PREVIOUS_STRATEGY
-from src.gui.widgets import QuestionWidget
-from src.question_model import QuestionModel, LearningModel
+from database.database_manager import DatabaseManager
+from gui.common import PREVIOUS_STRATEGY
+from gui.widgets import QuestionWidget
+from question_model import QuestionModel, LearningModel
 
 
 def blend_colors(first_color: QColor, second_color: QColor, number_of_steps: int) -> QColor:

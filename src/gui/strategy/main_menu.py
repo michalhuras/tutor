@@ -4,7 +4,7 @@ from typing import Iterator
 from PySide6.QtCore import QObject, Signal
 from PySide6.QtWidgets import QWidget
 
-from src.gui.widgets import MenuWidget
+from gui.widgets import MenuWidget
 
 
 class MainMenuStrategy(QObject):

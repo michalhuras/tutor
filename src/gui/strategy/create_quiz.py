@@ -2,8 +2,8 @@
 from PySide6.QtCore import QObject, Signal
 from PySide6.QtWidgets import QWidget
 
-from src.gui.common import PREVIOUS_STRATEGY
-from src.gui.widgets import NotImplementedWindow
+from gui.common import PREVIOUS_STRATEGY
+from gui.widgets import NotImplementedWindow
 
 
 class CreateQuizStrategy(QObject):

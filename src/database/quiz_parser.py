@@ -1,7 +1,7 @@
 """ Quiz txt file parser """
 import re
 
-from src.question_model import QuizModel, QuestionModel, AnswerModel
+from question_model import QuizModel, QuestionModel, AnswerModel
 
 
 def parse_quiz_text(text: str) -> QuizModel:

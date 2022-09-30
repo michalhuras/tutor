@@ -19,4 +19,3 @@ class QuestionStrategyTests(unittest.TestCase):
 
         result = list(blend_colors(QColorConstants.Red, QColorConstants.Green, 5))
         self.assertEqual(expected_result, result)
-
